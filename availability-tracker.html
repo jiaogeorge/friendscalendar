@@ -404,6 +404,49 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
+        .selected-players {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            min-height: 20px;
+        }
+
+        .player-tag {
+            background: #e0f2fe;
+            color: #0c4a6e;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid #bae6fd;
+        }
+
+        .player-tag .remove-player {
+            background: none;
+            border: none;
+            color: #0c4a6e;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .player-tag .remove-player:hover {
+            background: #0c4a6e;
+            color: white;
+        }
+
         .game-header {
             display: flex;
             justify-content: space-between;
@@ -813,7 +856,8 @@
                         <div class="form-group">
                             <label for="players">Players <span class="required">*</span></label>
                             <div class="players-input-container">
-                                <select id="players" name="players" required>
+                                <div id="selectedPlayers" class="selected-players"></div>
+                                <select id="players" name="players">
                                     <option value="">Select players</option>
                                     <option value="Tiffany">Tiffany</option>
                                     <option value="George">George</option>
@@ -864,6 +908,8 @@
                 this.playersSelect = document.getElementById('players');
                 this.newPlayerInput = document.getElementById('newPlayer');
                 this.addPlayerBtn = document.getElementById('addPlayerBtn');
+                this.selectedPlayersContainer = document.getElementById('selectedPlayers');
+                this.selectedPlayers = [];
                 
                 this.currentDate = new Date();
                 this.currentLocationFilter = 'all';
@@ -1018,8 +1064,9 @@
                 this.playersSelect.addEventListener('change', (e) => {
                     if (e.target.value === 'new') {
                         this.showNewPlayerInput();
-                    } else {
-                        this.hideNewPlayerInput();
+                    } else if (e.target.value && e.target.value !== '') {
+                        this.addPlayerToSelection(e.target.value);
+                        e.target.value = '';
                     }
                 });
                 
@@ -1050,12 +1097,13 @@
                 const sportType = formData.get('sportType');
                 const gameDate = formData.get('gameDate');
                 const gameLocation = formData.get('gameLocation');
-                const players = formData.get('players');
 
-                if (!sportType || !gameDate || !gameLocation || !players) {
-                    alert('Please fill in sport type, game date, location, and players');
+                if (!sportType || !gameDate || !gameLocation || this.selectedPlayers.length === 0) {
+                    alert('Please fill in sport type, game date, location, and select at least one player');
                     return;
                 }
+
+                const players = this.selectedPlayers.join(', ');
 
                 const newGame = {
                     id: Date.now(),
@@ -1071,6 +1119,8 @@
                 this.renderGames();
                 this.renderCalendar();
                 this.gameForm.reset();
+                this.selectedPlayers = [];
+                this.renderSelectedPlayers();
                 
                 alert(`${sportType} game has been added!`);
             }
@@ -1165,8 +1215,8 @@
                 this.saveNames(names);
                 this.populatePlayersSelect(names);
                 
-                // Select the new player
-                this.playersSelect.value = newPlayer;
+                // Add the new player to selection
+                this.addPlayerToSelection(newPlayer);
                 this.hideNewPlayerInput();
                 
                 alert(`Added "${newPlayer}" to the players list!`);
@@ -1191,6 +1241,31 @@
                 newOption.value = 'new';
                 newOption.textContent = '+ Add new player';
                 this.playersSelect.appendChild(newOption);
+            }
+
+            addPlayerToSelection(playerName) {
+                if (!this.selectedPlayers.includes(playerName)) {
+                    this.selectedPlayers.push(playerName);
+                    this.renderSelectedPlayers();
+                }
+            }
+
+            removePlayerFromSelection(playerName) {
+                this.selectedPlayers = this.selectedPlayers.filter(player => player !== playerName);
+                this.renderSelectedPlayers();
+            }
+
+            renderSelectedPlayers() {
+                this.selectedPlayersContainer.innerHTML = '';
+                this.selectedPlayers.forEach(player => {
+                    const playerTag = document.createElement('div');
+                    playerTag.className = 'player-tag';
+                    playerTag.innerHTML = `
+                        ${player}
+                        <button class="remove-player" onclick="tracker.removePlayerFromSelection('${player}')">×</button>
+                    `;
+                    this.selectedPlayersContainer.appendChild(playerTag);
+                });
             }
 
             handleSubmit(e) {
