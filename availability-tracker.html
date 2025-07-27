@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Friends and Games - Availability Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #37352f;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 40px 10px;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .middle-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+            .middle-panel {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            .right-panel {
+                grid-column: span 1;
+            }
+        }
+
+        .header {
+            margin-bottom: 40px;
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-image {
+            position: relative;
+            width: 100%;
+            height: 300px;
+        }
+
+        .friends-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.2) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+        }
+
+        .header-overlay h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: white;
+            letter-spacing: -0.025em;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-overlay p {
+            font-size: 1.25rem;
+            color: white;
+            max-width: 600px;
+            margin: 0;
+            font-weight: 400;
+            line-height: 1.6;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e9e9e9;
+            border-radius: 8px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: #37352f;
+            letter-spacing: -0.01em;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-image {
+                height: 200px;
+            }
+            
+            .header-overlay h1 {
+                font-size: 2rem;
+            }
+            
+            .header-overlay p {
+                font-size: 1rem;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #37352f;
+            font-size: 1.375rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1px solid #e9e9e9;
+            border-radius: 6px;
+            font-size: 1.25rem;
+            transition: all 0.2s ease;
+            background: #ffffff;
+            color: #37352f;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2e75cc;
+            box-shadow: 0 0 0 3px rgba(46, 117, 204, 0.1);
+            background: #ffffff;
+        }
+
+        .btn {
+            background: #2e75cc;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.25rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            letter-spacing: 0.01em;
+        }
+
+        .btn:hover {
+            background: #1e5aa3;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .entry {
+            border: 1px solid #e9e9e9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            background: #ffffff;
+            transition: all 0.2s ease;
+            max-width: 280px;
+        }
+
+        .entry:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-color: #d1d5db;
+        }
+
+        .entry.current {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .entry-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #37352f;
+            letter-spacing: -0.01em;
+        }
+
+        .current-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .entry-dates {
+            margin-bottom: 8px;
+        }
+
+        .date-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.125rem;
+            color: #787774;
+            font-weight: 400;
+        }
+
+        .entry-location {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.125rem;
+            color: #787774;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        .entry-notes {
+            font-size: 1.125rem;
+            color: #787774;
+            font-style: italic;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .delete-btn:hover {
+            background: #fef2f2;
+            transform: scale(1.05);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #787774;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 20px;
+            opacity: 0.4;
+        }
+
+        .empty-state p {
+            font-size: 1.125rem;
+            font-weight: 400;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        /* Location Filter Styles */
+        .location-filter {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .location-btn {
+            background: #f3f4f6;
+            color: #6b7280;
+            border: 2px solid transparent;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .location-btn:hover {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .location-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* Game Form Styles */
+        .game-form {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .games-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #37352f;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+        }
+
+        .game-entry {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .game-entry:hover {
+            border-color: #d1d5db;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .game-sport {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #37352f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .game-date {
+            font-size: 1rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .game-players {
+            font-size: 1rem;
+            color: #787774;
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .game-notes {
+            font-size: 0.875rem;
+            color: #787774;
+            font-style: italic;
+            font-weight: 400;
+        }
+
+        .delete-game-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .delete-game-btn:hover {
+            background: #fef2f2;
+            transform: scale(1.05);
+        }
+
+        /* Calendar Styles */
+        .calendar-container {
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            background: #f7f7f7;
+            border: 1px solid #e9e9e9;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: #37352f;
+            font-size: 0.875rem;
+        }
+
+        .calendar-nav button:hover {
+            background: #f0f0f0;
+            border-color: #d1d5db;
+            transform: translateY(-1px);
+        }
+
+        .calendar-title {
+            font-size: 1.625rem;
+            font-weight: 600;
+            color: #37352f;
+            letter-spacing: -0.01em;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: #f7f7f7;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #787774;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .calendar-day {
+            background: white;
+            min-height: 80px;
+            padding: 8px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .calendar-day:hover {
+            background: #f7f7f7;
+            border-color: #e9e9e9;
+        }
+
+        .calendar-day.today {
+            background: #f0f9ff;
+            border: 2px solid #2e75cc;
+        }
+
+        .calendar-day.current-week {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+        }
+
+        .calendar-day.current-week.today {
+            background: #fef3c7;
+            border: 2px solid #2e75cc;
+        }
+
+        .calendar-day.other-month {
+            background: #fafafa;
+            color: #9ca3af;
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 4px;
+        }
+
+        .availability-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-top: 4px;
+        }
+
+        .availability-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .sports-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2px;
+            margin-top: 4px;
+        }
+
+        .sports-dot {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .availability-tooltip {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1f2937;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .calendar-day:hover .availability-tooltip {
+            opacity: 1;
+        }
+
+        .calendar-legends {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .legend {
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .sports-legend {
+            padding: 16px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border: 1px solid #bae6fd;
+        }
+
+        .legend p {
+            margin: 0 0 12px 0;
+            font-weight: 600;
+            color: #37352f;
+            font-size: 1rem;
+        }
+
+        .sports-legend p {
+            margin: 0 0 12px 0;
+            font-weight: 600;
+            color: #0c4a6e;
+            font-size: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: #787774;
+        }
+
+        .sports-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            color: #0c4a6e;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .sports-icon {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+                            <div class="header-image">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" alt="Friends jumping in sunset ocean" class="friends-image">
+                    <div class="header-overlay">
+                        <h1>Friends and Games</h1>
+                        <p>Where every moment becomes an adventure with friends</p>
+                    </div>
+                </div>
+        </div>
+
+        <div class="main-layout">
+            <div class="left-panel">
+                <div class="card">
+                    <h2 style="font-size: 1.5rem;">➕ Add Your Availability</h2>
+                    <form id="availabilityForm">
+                        <div class="form-grid">
+                                                <div class="form-group">
+                        <label for="name">Name <span class="required">*</span></label>
+                        <div class="name-input-container">
+                            <select id="name" name="name" required>
+                                <option value="">Select your name</option>
+                                <option value="Tiffany">Tiffany</option>
+                                <option value="George">George</option>
+                            </select>
+                            <input type="text" id="newName" placeholder="Or type a new name" style="margin-top: 8px; display: none;">
+                            <button type="button" id="addNameBtn" style="margin-top: 8px; display: none; background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Add Name</button>
+                            <div id="colorPreview" style="margin-top: 8px; font-size: 0.875rem; color: #787774; display: none;">
+                                <span>Color: </span><span id="colorDot" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-left: 4px;"></span>
+                            </div>
+                        </div>
+                    </div>
+                            <div class="form-group">
+                                <label for="location">Location <span class="required">*</span></label>
+                                <select id="location" name="location" required>
+                                    <option value="">Select location</option>
+                                    <option value="Singapore">Singapore</option>
+                                    <option value="Hong Kong">Hong Kong</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="arrivalDate">Arrival Date <span class="required">*</span></label>
+                                <input type="date" id="arrivalDate" name="arrivalDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="departureDate">Departure Date <span class="required">*</span></label>
+                                <input type="date" id="departureDate" name="departureDate" required>
+                            </div>
+                        </div>
+                        
+
+                        
+                        <button type="submit" class="btn">Add Availability</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h2>👥 Friends Availability</h2>
+                    <div id="entriesList">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            <p>No entries yet. Add your availability above!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="middle-panel">
+                <div class="card">
+                    <h2>📅 Friends Traveling Calendar</h2>
+                    <div class="location-filter">
+                        <button id="allLocations" class="location-btn active" onclick="tracker.filterByLocation('all')">All Locations</button>
+                        <button id="hongKong" class="location-btn" onclick="tracker.filterByLocation('Hong Kong')">Hong Kong</button>
+                        <button id="singapore" class="location-btn" onclick="tracker.filterByLocation('Singapore')">Singapore</button>
+                    </div>
+                    <div class="calendar-container">
+                                        <div class="calendar-header">
+                    <div class="calendar-nav">
+                        <button onclick="tracker.previousMonth()">←</button>
+                        <button onclick="tracker.nextMonth()">→</button>
+                    </div>
+                    <div class="calendar-title" id="calendarTitle"></div>
+                </div>
+                        <div class="calendar-grid" id="calendarGrid"></div>
+                        <div class="calendar-legends">
+                            <div class="legend" id="legend"></div>
+                            <div class="sports-legend" id="sportsLegend"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="card">
+                    <h2>🎾 Sports</h2>
+                    
+                    <!-- Add Game Form -->
+                    <form id="gameForm" class="game-form">
+                        <div class="form-group">
+                            <label for="sportType">Sport Type <span class="required">*</span></label>
+                            <select id="sportType" name="sportType" required>
+                                <option value="">Select sport</option>
+                                <option value="Tennis">Tennis</option>
+                                <option value="Padel">Padel</option>
+                                <option value="Golf">Golf</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameDate">Game Date <span class="required">*</span></label>
+                            <input type="date" id="gameDate" name="gameDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gameLocation">Location <span class="required">*</span></label>
+                            <select id="gameLocation" name="gameLocation" required>
+                                <option value="">Select location</option>
+                                <option value="Hong Kong">Hong Kong</option>
+                                <option value="Singapore">Singapore</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="players">Players <span class="required">*</span></label>
+                            <div class="players-input-container">
+                                <select id="players" name="players" required>
+                                    <option value="">Select players</option>
+                                    <option value="Tiffany">Tiffany</option>
+                                    <option value="George">George</option>
+                                </select>
+                                <input type="text" id="newPlayer" placeholder="Or type a new player name" style="margin-top: 8px; display: none;">
+                                <button type="button" id="addPlayerBtn" style="margin-top: 8px; display: none; background: #10b981; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Add Player</button>
+                            </div>
+                        </div>
+                        
+
+                        
+                        <button type="submit" class="btn">Add Game</button>
+                    </form>
+                    
+                    <!-- Games List -->
+                    <div class="games-section">
+                        <h3>📅 Scheduled Games</h3>
+                        <div id="gamesList">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                                <p>No games scheduled yet. Add a game above!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AvailabilityTracker {
+            constructor() {
+                this.entries = [];
+                this.games = [];
+                this.form = document.getElementById('availabilityForm');
+                this.gameForm = document.getElementById('gameForm');
+                this.entriesList = document.getElementById('entriesList');
+                this.gamesList = document.getElementById('gamesList');
+                this.calendarGrid = document.getElementById('calendarGrid');
+                this.calendarTitle = document.getElementById('calendarTitle');
+                this.legend = document.getElementById('legend');
+                this.sportsLegend = document.getElementById('sportsLegend');
+                this.nameSelect = document.getElementById('name');
+                this.newNameInput = document.getElementById('newName');
+                this.addNameBtn = document.getElementById('addNameBtn');
+                this.playersSelect = document.getElementById('players');
+                this.newPlayerInput = document.getElementById('newPlayer');
+                this.addPlayerBtn = document.getElementById('addPlayerBtn');
+                
+                this.currentDate = new Date();
+                this.currentLocationFilter = 'all';
+                this.colors = [
+                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', 
+                    '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'
+                ];
+                
+                this.loadEntries();
+                this.loadGames();
+                this.loadSavedNames();
+                this.setupEventListeners();
+                this.renderEntries();
+                this.renderGames();
+                this.renderCalendar();
+                
+                // Populate players select with saved names
+                const savedNames = localStorage.getItem('savedNames');
+                const names = savedNames ? JSON.parse(savedNames) : ['Tiffany', 'George'];
+                this.populatePlayersSelect(names);
+            }
+
+            loadEntries() {
+                const saved = localStorage.getItem('availabilityEntries');
+                if (saved) {
+                    this.entries = JSON.parse(saved);
+                }
+            }
+
+            saveEntries() {
+                localStorage.setItem('availabilityEntries', JSON.stringify(this.entries));
+            }
+
+            loadSavedNames() {
+                const savedNames = localStorage.getItem('savedNames');
+                if (savedNames) {
+                    const names = JSON.parse(savedNames);
+                    this.populateNameSelect(names);
+                } else {
+                    // Initialize with default names
+                    const defaultNames = ['Tiffany', 'George'];
+                    this.saveNames(defaultNames);
+                    this.populateNameSelect(defaultNames);
+                }
+            }
+
+            saveNames(names) {
+                localStorage.setItem('savedNames', JSON.stringify(names));
+            }
+
+            populateNameSelect(names) {
+                // Clear existing options except the first one
+                while (this.nameSelect.children.length > 1) {
+                    this.nameSelect.removeChild(this.nameSelect.lastChild);
+                }
+                
+                // Add saved names
+                names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    this.nameSelect.appendChild(option);
+                });
+                
+                // Add "Add new name" option
+                const newOption = document.createElement('option');
+                newOption.value = 'new';
+                newOption.textContent = '+ Add new name';
+                this.nameSelect.appendChild(newOption);
+            }
+
+            showNewNameInput() {
+                this.newNameInput.style.display = 'block';
+                this.addNameBtn.style.display = 'block';
+                this.newNameInput.focus();
+                
+                // Show color preview
+                const savedNames = localStorage.getItem('savedNames');
+                const names = savedNames ? JSON.parse(savedNames) : ['Tiffany', 'George'];
+                const colorIndex = names.length;
+                const color = this.colors[colorIndex % this.colors.length];
+                
+                const colorPreview = document.getElementById('colorPreview');
+                const colorDot = document.getElementById('colorDot');
+                colorPreview.style.display = 'block';
+                colorDot.style.backgroundColor = color;
+            }
+
+            hideNewNameInput() {
+                this.newNameInput.style.display = 'none';
+                this.addNameBtn.style.display = 'none';
+                this.newNameInput.value = '';
+                
+                // Hide color preview
+                const colorPreview = document.getElementById('colorPreview');
+                colorPreview.style.display = 'none';
+            }
+
+            addNewName() {
+                const newName = this.newNameInput.value.trim();
+                if (!newName) {
+                    alert('Please enter a name');
+                    return;
+                }
+
+                // Get current saved names
+                const savedNames = localStorage.getItem('savedNames');
+                const names = savedNames ? JSON.parse(savedNames) : ['Tiffany', 'George'];
+                
+                // Check if name already exists
+                if (names.includes(newName)) {
+                    alert('This name already exists');
+                    return;
+                }
+
+                // Add new name
+                names.push(newName);
+                this.saveNames(names);
+                this.populateNameSelect(names);
+                
+                // Select the new name
+                this.nameSelect.value = newName;
+                this.hideNewNameInput();
+                
+                // Show color preview
+                const colorIndex = names.length - 1;
+                const color = this.colors[colorIndex % this.colors.length];
+                alert(`Added "${newName}" to the list! They will appear in ${color} color.`);
+            }
+
+            setupEventListeners() {
+                this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+                this.gameForm.addEventListener('submit', (e) => this.handleGameSubmit(e));
+                
+                // Name input event listeners
+                this.nameSelect.addEventListener('change', (e) => {
+                    if (e.target.value === 'new') {
+                        this.showNewNameInput();
+                    } else {
+                        this.hideNewNameInput();
+                    }
+                });
+                
+                this.addNameBtn.addEventListener('click', () => this.addNewName());
+                this.newNameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addNewName();
+                    }
+                });
+                
+                // Players input event listeners
+                this.playersSelect.addEventListener('change', (e) => {
+                    if (e.target.value === 'new') {
+                        this.showNewPlayerInput();
+                    } else {
+                        this.hideNewPlayerInput();
+                    }
+                });
+                
+                this.addPlayerBtn.addEventListener('click', () => this.addNewPlayer());
+                this.newPlayerInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addNewPlayer();
+                    }
+                });
+            }
+
+            // Games functionality
+            loadGames() {
+                const saved = localStorage.getItem('sportsGames');
+                if (saved) {
+                    this.games = JSON.parse(saved);
+                }
+            }
+
+            saveGames() {
+                localStorage.setItem('sportsGames', JSON.stringify(this.games));
+            }
+
+            handleGameSubmit(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this.gameForm);
+                const sportType = formData.get('sportType');
+                const gameDate = formData.get('gameDate');
+                const gameLocation = formData.get('gameLocation');
+                const players = formData.get('players');
+
+                if (!sportType || !gameDate || !gameLocation || !players) {
+                    alert('Please fill in sport type, game date, location, and players');
+                    return;
+                }
+
+                const newGame = {
+                    id: Date.now(),
+                    sportType,
+                    gameDate,
+                    gameLocation,
+                    players,
+                    createdAt: new Date().toISOString()
+                };
+
+                this.games.unshift(newGame);
+                this.saveGames();
+                this.renderGames();
+                this.renderCalendar();
+                this.gameForm.reset();
+                
+                alert(`${sportType} game has been added!`);
+            }
+
+            renderGames() {
+                if (this.games.length === 0) {
+                    this.gamesList.innerHTML = `
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            <p>No games scheduled yet. Add a game above!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                this.gamesList.innerHTML = this.games.map(game => {
+                    const sportIcon = this.getSportIcon(game.sportType);
+                    return `
+                        <div class="game-entry">
+                            <div class="game-header">
+                                <div class="game-sport">
+                                    ${sportIcon} ${game.sportType}
+                                </div>
+                                <button class="delete-game-btn" onclick="tracker.deleteGame(${game.id})" title="Delete game">
+                                    🗑️
+                                </button>
+                            </div>
+                            <div class="game-date">
+                                📅 ${this.formatDate(game.gameDate)}
+                            </div>
+                            <div class="game-location">
+                                📍 ${game.gameLocation}
+                            </div>
+                            <div class="game-players">
+                                👥 ${game.players}
+                            </div>
+
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            deleteGame(id) {
+                this.games = this.games.filter(game => game.id !== id);
+                this.saveGames();
+                this.renderGames();
+                this.renderCalendar();
+            }
+
+            getSportIcon(sportType) {
+                const icons = {
+                    'Tennis': '🎾',
+                    'Padel': '🏓',
+                    'Golf': '⛳'
+                };
+                return icons[sportType] || '🏆';
+            }
+
+            showNewPlayerInput() {
+                this.newPlayerInput.style.display = 'block';
+                this.addPlayerBtn.style.display = 'block';
+                this.newPlayerInput.focus();
+            }
+
+            hideNewPlayerInput() {
+                this.newPlayerInput.style.display = 'none';
+                this.addPlayerBtn.style.display = 'none';
+                this.newPlayerInput.value = '';
+            }
+
+            addNewPlayer() {
+                const newPlayer = this.newPlayerInput.value.trim();
+                if (!newPlayer) {
+                    alert('Please enter a player name');
+                    return;
+                }
+
+                // Get current saved names
+                const savedNames = localStorage.getItem('savedNames');
+                const names = savedNames ? JSON.parse(savedNames) : ['Tiffany', 'George'];
+                
+                // Check if name already exists
+                if (names.includes(newPlayer)) {
+                    alert('This player name already exists');
+                    return;
+                }
+
+                // Add new name
+                names.push(newPlayer);
+                this.saveNames(names);
+                this.populatePlayersSelect(names);
+                
+                // Select the new player
+                this.playersSelect.value = newPlayer;
+                this.hideNewPlayerInput();
+                
+                alert(`Added "${newPlayer}" to the players list!`);
+            }
+
+            populatePlayersSelect(names) {
+                // Clear existing options except the first one
+                while (this.playersSelect.children.length > 1) {
+                    this.playersSelect.removeChild(this.playersSelect.lastChild);
+                }
+                
+                // Add saved names
+                names.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    this.playersSelect.appendChild(option);
+                });
+                
+                // Add "Add new player" option
+                const newOption = document.createElement('option');
+                newOption.value = 'new';
+                newOption.textContent = '+ Add new player';
+                this.playersSelect.appendChild(newOption);
+            }
+
+            handleSubmit(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this.form);
+                const name = formData.get('name');
+                const arrivalDate = formData.get('arrivalDate');
+                const departureDate = formData.get('departureDate');
+                const location = formData.get('location');
+
+                if (!name || !arrivalDate || !departureDate || !location) {
+                    alert('Please fill in name, arrival date, departure date, and location');
+                    return;
+                }
+
+                // Check if this person already has an entry
+                const existingEntryIndex = this.entries.findIndex(entry => entry.name === name);
+                
+                const newEntry = {
+                    id: Date.now(),
+                    name,
+                    arrivalDate,
+                    departureDate,
+                    location,
+                    createdAt: new Date().toISOString()
+                };
+
+                if (existingEntryIndex !== -1) {
+                    // Replace existing entry
+                    this.entries[existingEntryIndex] = newEntry;
+                    alert(`${name}'s availability has been updated!`);
+                } else {
+                    // Add new entry
+                    this.entries.unshift(newEntry);
+                    alert(`${name}'s availability has been added!`);
+                }
+
+                this.saveEntries();
+                this.renderEntries();
+                this.renderCalendar();
+                this.form.reset();
+            }
+
+            deleteEntry(id) {
+                this.entries = this.entries.filter(entry => entry.id !== id);
+                this.saveEntries();
+                this.renderEntries();
+                this.renderCalendar();
+            }
+
+            formatDate(dateString) {
+                return new Date(dateString).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            }
+
+            formatCompactDate(dateString) {
+                const date = new Date(dateString);
+                const month = date.toLocaleDateString('en-US', { month: 'short' });
+                const day = date.getDate();
+                return `${month} ${day}`;
+            }
+
+            isCurrentlyInTown(arrivalDate, departureDate) {
+                const now = new Date();
+                const arrival = new Date(arrivalDate);
+                const departure = new Date(departureDate);
+                return now >= arrival && now <= departure;
+            }
+
+            previousMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+                this.renderCalendar();
+            }
+
+            nextMonth() {
+                this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+                this.renderCalendar();
+            }
+
+            getAvailabilityForDate(date) {
+                const dateStr = date.toISOString().split('T')[0];
+                let filteredEntries = this.entries;
+                
+                // Apply location filter
+                if (this.currentLocationFilter !== 'all') {
+                    filteredEntries = this.entries.filter(entry => entry.location === this.currentLocationFilter);
+                }
+                
+                return filteredEntries.filter(entry => {
+                    const arrival = new Date(entry.arrivalDate);
+                    const departure = new Date(entry.departureDate);
+                    return date >= arrival && date <= departure;
+                });
+            }
+
+            getSportsGamesForDate(date) {
+                const dateStr = date.toISOString().split('T')[0];
+                let filteredGames = this.games.filter(game => {
+                    const gameDate = new Date(game.gameDate);
+                    return gameDate.toISOString().split('T')[0] === dateStr;
+                });
+                
+                // Apply location filter to sports games
+                if (this.currentLocationFilter !== 'all') {
+                    filteredGames = filteredGames.filter(game => game.gameLocation === this.currentLocationFilter);
+                }
+                
+                return filteredGames;
+            }
+
+            renderCalendar() {
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                
+                this.calendarTitle.textContent = new Date(year, month).toLocaleDateString('en-US', {
+                    month: 'long',
+                    year: 'numeric'
+                });
+
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+                let calendarHTML = '';
+                
+                // Day headers
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                dayNames.forEach(day => {
+                    calendarHTML += `<div class="calendar-day-header">${day}</div>`;
+                });
+
+                // Calendar days
+                const today = new Date();
+                const currentWeekStart = new Date(today);
+                currentWeekStart.setDate(today.getDate() - today.getDay());
+
+                for (let i = 0; i < 42; i++) {
+                    const currentDate = new Date(startDate);
+                    currentDate.setDate(startDate.getDate() + i);
+                    
+                    const isCurrentMonth = currentDate.getMonth() === month;
+                    const isToday = currentDate.toDateString() === today.toDateString();
+                    const isCurrentWeek = currentDate >= currentWeekStart && currentDate < new Date(currentWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+                    const availability = this.getAvailabilityForDate(currentDate);
+                    const sportsGames = this.getSportsGamesForDate(currentDate);
+                    
+                    let dayClass = 'calendar-day';
+                    if (!isCurrentMonth) dayClass += ' other-month';
+                    if (isToday) dayClass += ' today';
+                    if (isCurrentWeek) dayClass += ' current-week';
+
+                    let availabilityHTML = '';
+                    let tooltipHTML = '';
+                    let sportsHTML = '';
+                    
+                    if (availability.length > 0) {
+                        availabilityHTML = '<div class="availability-indicators">';
+                        tooltipHTML = '<div class="availability-tooltip">';
+                        
+                        availability.forEach((entry, index) => {
+                            const color = this.colors[index % this.colors.length];
+                            availabilityHTML += `<div class="availability-dot" style="background-color: ${color}"></div>`;
+                            tooltipHTML += `${entry.name}<br>`;
+                        });
+                        
+                        availabilityHTML += '</div>';
+                        tooltipHTML += '</div>';
+                    }
+
+                    if (sportsGames.length > 0) {
+                        sportsHTML = '<div class="sports-indicators">';
+                        sportsGames.forEach(game => {
+                            const sportIcon = this.getSportIcon(game.sportType);
+                            sportsHTML += `<div class="sports-dot" title="${game.sportType} - ${game.players}">${sportIcon}</div>`;
+                            tooltipHTML += `${game.sportType}: ${game.players}<br>`;
+                        });
+                        sportsHTML += '</div>';
+                    }
+
+                    calendarHTML += `
+                        <div class="${dayClass}" data-date="${currentDate.toISOString().split('T')[0]}">
+                            <div class="day-number">${currentDate.getDate()}</div>
+                            ${availabilityHTML}
+                            ${sportsHTML}
+                            ${tooltipHTML}
+                        </div>
+                    `;
+                }
+
+                this.calendarGrid.innerHTML = calendarHTML;
+                this.renderLegend();
+            }
+
+            renderLegend() {
+                let filteredEntries = this.entries;
+                
+                // Apply location filter to legend
+                if (this.currentLocationFilter !== 'all') {
+                    filteredEntries = this.entries.filter(entry => entry.location === this.currentLocationFilter);
+                }
+                
+                if (filteredEntries.length === 0) {
+                    this.legend.innerHTML = '<p>No entries to display</p>';
+                } else {
+                    let legendHTML = '<p><strong>Availability:</strong></p>';
+                    filteredEntries.forEach((entry, index) => {
+                        const color = this.colors[index % this.colors.length];
+                        legendHTML += `
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: ${color}"></div>
+                                <span>${entry.name}</span>
+                            </div>
+                        `;
+                    });
+                    this.legend.innerHTML = legendHTML;
+                }
+
+                this.renderSportsLegend();
+            }
+
+            renderSportsLegend() {
+                let filteredGames = this.games;
+                
+                // Apply location filter to sports legend
+                if (this.currentLocationFilter !== 'all') {
+                    filteredGames = this.games.filter(game => game.gameLocation === this.currentLocationFilter);
+                }
+                
+                if (filteredGames.length === 0) {
+                    this.sportsLegend.innerHTML = '<p>No games scheduled</p>';
+                    return;
+                }
+
+                // Group games by sport type
+                const sportGroups = {};
+                filteredGames.forEach(game => {
+                    if (!sportGroups[game.sportType]) {
+                        sportGroups[game.sportType] = [];
+                    }
+                    sportGroups[game.sportType].push(game);
+                });
+
+                let legendHTML = '<p><strong>Sports:</strong></p>';
+                Object.keys(sportGroups).forEach(sportType => {
+                    const sportIcon = this.getSportIcon(sportType);
+                    
+                    legendHTML += `
+                        <div class="sports-legend-item">
+                            <div class="sports-icon">${sportIcon}</div>
+                        </div>
+                    `;
+                });
+
+                this.sportsLegend.innerHTML = legendHTML;
+            }
+
+            filterByLocation(location) {
+                this.currentLocationFilter = location;
+                
+                // Update button states
+                document.querySelectorAll('.location-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                if (location === 'all') {
+                    document.getElementById('allLocations').classList.add('active');
+                } else if (location === 'Hong Kong') {
+                    document.getElementById('hongKong').classList.add('active');
+                } else if (location === 'Singapore') {
+                    document.getElementById('singapore').classList.add('active');
+                }
+                
+                this.renderCalendar();
+            }
+
+            renderEntries() {
+                if (this.entries.length === 0) {
+                    this.entriesList.innerHTML = `
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                            <p>No entries yet. Add your availability above!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                this.entriesList.innerHTML = this.entries.map((entry, index) => {
+                    const isCurrent = this.isCurrentlyInTown(entry.arrivalDate, entry.departureDate);
+                    const color = this.colors[index % this.colors.length];
+                    return `
+                        <div class="entry ${isCurrent ? 'current' : ''}" style="border-left: 4px solid ${color};">
+                            <div class="entry-header">
+                                <div>
+                                    <div class="entry-name" style="color: ${color};">${entry.name}</div>
+                                    ${isCurrent ? '<span class="current-badge">Currently in town</span>' : ''}
+                                </div>
+                                <button class="delete-btn" onclick="tracker.deleteEntry(${entry.id})" title="Delete entry">
+                                    🗑️
+                                </button>
+                            </div>
+                            
+                            <div class="entry-dates">
+                                <div class="date-item">
+                                    📍 ${entry.location} • ${this.formatCompactDate(entry.arrivalDate)} - ${this.formatCompactDate(entry.departureDate)}
+                                </div>
+                            </div>
+                            
+
+                            
+
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Initialize the tracker when the page loads
+        let tracker;
+        document.addEventListener('DOMContentLoaded', () => {
+            tracker = new AvailabilityTracker();
+        });
+    </script>
+</body>
+</html> 
